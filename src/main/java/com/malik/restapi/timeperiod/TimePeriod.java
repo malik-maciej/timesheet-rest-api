@@ -7,7 +7,7 @@ public enum TimePeriod {
     CURRENT_MONTH(new CurrentMonth()),
     CURRENT_WEEK(new CurrentWeek());
 
-    private TypeOfPeriod typeOfPeriod;
+    private final TypeOfPeriod typeOfPeriod;
 
     TimePeriod(TypeOfPeriod typeOfPeriod) {
         this.typeOfPeriod = typeOfPeriod;
