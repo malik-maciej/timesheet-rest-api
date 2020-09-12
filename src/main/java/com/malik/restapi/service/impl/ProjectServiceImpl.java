@@ -2,6 +2,7 @@ package com.malik.restapi.service.impl;
 
 import com.malik.restapi.dto.ProjectDto;
 import com.malik.restapi.dto.ProjectTableDto;
+import com.malik.restapi.exception.NonUniqueException;
 import com.malik.restapi.exception.NotFoundException;
 import com.malik.restapi.form.ProjectCreateForm;
 import com.malik.restapi.form.ProjectFilterForm;
@@ -47,20 +48,24 @@ class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Project createProject(final ProjectCreateForm createForm) {
-        return projectRepository.save(projectMapper.projectCreateFormToProject(createForm));
+    public ProjectDto createProject(final ProjectCreateForm createForm) {
+        if (projectRepository.existsByName(createForm.getName())) {
+            throw new NonUniqueException("Project with given name is already exists");
+        }
+
+        Project project = projectRepository.save(projectMapper.projectCreateFormToProject(createForm));
+        return projectMapper.projectToProjectDto(project);
     }
 
     @Override
-    public boolean updateProject(final UUID uuid, final ProjectCreateForm createForm) {
+    public void updateProject(final UUID uuid, final ProjectCreateForm createForm) {
         final Project project = getProjectByUuid(uuid);
         if (!isProjectNameAvailable(project.getName(), createForm.getName())) {
-            return false;
+            throw new NonUniqueException("Given name is non unique");
         }
 
         projectMapper.fromProjectCreateForm(createForm, project);
         projectRepository.save(project);
-        return true;
     }
 
     private boolean isProjectNameAvailable(final String name, final String newName) {
@@ -100,11 +105,6 @@ class ProjectServiceImpl implements ProjectService {
     public Project getProjectByName(final String name) {
         return projectRepository.findByName(name)
                 .orElseThrow(() -> new NotFoundException("Project with given name not found"));
-    }
-
-    @Override
-    public boolean existProjectByName(final String name) {
-        return projectRepository.existsByName(name);
     }
 
     @Override

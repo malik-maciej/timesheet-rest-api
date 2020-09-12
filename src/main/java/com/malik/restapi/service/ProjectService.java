@@ -17,9 +17,9 @@ public interface ProjectService {
 
     Page<ProjectDto> getFilteredProjects(final ProjectFilterForm filterForm, final Pageable pageable);
 
-    Project createProject(final ProjectCreateForm createForm);
+    ProjectDto createProject(final ProjectCreateForm createForm);
 
-    boolean updateProject(final UUID uuid, final ProjectCreateForm createForm);
+    void updateProject(final UUID uuid, final ProjectCreateForm createForm);
 
     void deleteProject(final UUID uuid);
 
@@ -30,8 +30,6 @@ public interface ProjectService {
     Project getProjectByUuid(final UUID uuid);
 
     Project getProjectByName(final String name);
-
-    boolean existProjectByName(final String name);
 
     List<ProjectTableDto> getProjects();
 }

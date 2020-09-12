@@ -1,6 +1,7 @@
 package com.malik.restapi.service.impl;
 
 import com.malik.restapi.dto.ProjectTableDto;
+import com.malik.restapi.exception.NonUniqueException;
 import com.malik.restapi.exception.NotFoundException;
 import com.malik.restapi.factory.ProjectFactory;
 import com.malik.restapi.form.ProjectCreateForm;
@@ -10,7 +11,6 @@ import com.malik.restapi.repository.ProjectRepository;
 import com.malik.restapi.repository.ProjectViewRepository;
 import com.malik.restapi.repository.UserRepository;
 import com.malik.restapi.service.UserService;
-import org.assertj.core.internal.bytebuddy.utility.RandomString;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -87,10 +87,9 @@ class ProjectServiceImplTest {
         given(projectRepository.findByUuid(project.getUuid())).willReturn(Optional.of(project));
 
         // when
-        final boolean result = projectService.updateProject(project.getUuid(), projectCreateForm);
+        projectService.updateProject(project.getUuid(), projectCreateForm);
 
         // then
-        then(result).isTrue();
         then(project.getName()).isEqualTo(projectCreateForm.getName());
         then(project.getDescription()).isEqualTo(projectCreateForm.getDescription());
     }
@@ -105,15 +104,14 @@ class ProjectServiceImplTest {
         given(projectRepository.existsByName(projectCreateForm.getName())).willReturn(false);
 
         // when
-        final boolean result = projectService.updateProject(project.getUuid(), projectCreateForm);
+        projectService.updateProject(project.getUuid(), projectCreateForm);
 
         // then
-        then(result).isTrue();
         then(project.getName()).isEqualTo(projectCreateForm.getName());
     }
 
     @Test
-    void shouldUpdateProjectWhenNewNameIsDifferentAndUnavailable() {
+    void shouldNotUpdateProjectWhenNewNameIsDifferentAndUnavailable() {
         // given
         final Project project = ProjectFactory.getProject();
         final ProjectCreateForm projectCreateForm = ProjectFactory.getProjectCreateForm();
@@ -122,10 +120,12 @@ class ProjectServiceImplTest {
         given(projectRepository.existsByName(projectCreateForm.getName())).willReturn(true);
 
         // when
-        final boolean result = projectService.updateProject(project.getUuid(), projectCreateForm);
+        final Throwable result = catchThrowable(() -> projectService.updateProject(project.getUuid(), projectCreateForm));
 
         // then
-        then(result).isFalse();
+        then(result)
+                .isInstanceOf(NonUniqueException.class)
+                .hasMessage("Given name is non unique");
     }
 
     @Test
@@ -223,19 +223,6 @@ class ProjectServiceImplTest {
         then(result)
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("Project with given name not found");
-    }
-
-    @Test
-    void shouldExistsByNameReturnTrue() {
-        // given
-        final String name = RandomString.make();
-        given(projectRepository.existsByName(name)).willReturn(true);
-
-        // when
-        final boolean result = projectService.existProjectByName(name);
-
-        // then
-        then(result).isTrue();
     }
 
     @Test
