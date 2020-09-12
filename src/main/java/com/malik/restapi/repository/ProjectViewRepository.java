@@ -14,5 +14,5 @@ public interface ProjectViewRepository extends JpaRepository<ProjectView, Long>,
 
     @Override
     @EntityGraph(attributePaths = {"users"})
-    Page<ProjectView> findAll(Specification<ProjectView> spec, Pageable pageable);
+    Page<ProjectView> findAll(final Specification<ProjectView> spec, final Pageable pageable);
 }

@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public class ProjectFactory {
 
     public static Project getProject() {
-        Project project = new Project();
+        final Project project = new Project();
         project.setName("project1");
         project.setDescription("description for project1");
         project.setBudget(BigDecimal.valueOf(200000));
@@ -19,7 +19,7 @@ public class ProjectFactory {
     }
 
     public static ProjectCreateForm getProjectCreateForm() {
-        ProjectCreateForm pcf = new ProjectCreateForm();
+        final ProjectCreateForm pcf = new ProjectCreateForm();
         pcf.setName("new project1");
         pcf.setDescription("new description for project1");
         pcf.setBudget(BigDecimal.valueOf(150000));

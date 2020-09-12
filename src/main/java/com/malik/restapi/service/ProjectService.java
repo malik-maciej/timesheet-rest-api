@@ -15,23 +15,23 @@ import java.util.UUID;
 @Service
 public interface ProjectService {
 
-    Page<ProjectDto> getFilteredProjects(ProjectFilterForm filterForm, Pageable pageable);
+    Page<ProjectDto> getFilteredProjects(final ProjectFilterForm filterForm, final Pageable pageable);
 
-    Project createProject(ProjectCreateForm createForm);
+    Project createProject(final ProjectCreateForm createForm);
 
-    boolean updateProject(UUID uuid, ProjectCreateForm createForm);
+    boolean updateProject(final UUID uuid, final ProjectCreateForm createForm);
 
-    void deleteProject(UUID uuid);
+    void deleteProject(final UUID uuid);
 
-    void addUserToProject(UUID projectUuid, UUID userUuid);
+    void addUserToProject(final UUID projectUuid, final UUID userUuid);
 
-    void deleteUserFromProject(UUID projectUuid, UUID userUuid);
+    void deleteUserFromProject(final UUID projectUuid, final UUID userUuid);
 
-    Project getProjectByUuid(UUID uuid);
+    Project getProjectByUuid(final UUID uuid);
 
-    Project getProjectByName(String name);
+    Project getProjectByName(final String name);
 
-    boolean existProjectByName(String name);
+    boolean existProjectByName(final String name);
 
     List<ProjectTableDto> getProjects();
 }

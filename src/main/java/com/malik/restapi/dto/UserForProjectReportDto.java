@@ -8,10 +8,10 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserForProjectReportDto {
 
     private UUID uuid;

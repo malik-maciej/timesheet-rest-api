@@ -8,10 +8,10 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class WorktimeDto {
 
     private UUID uuid;

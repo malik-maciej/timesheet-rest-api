@@ -16,15 +16,15 @@ public interface UserService {
 
     List<UserDto> getAllUsers();
 
-    Page<UserDto> getFilteredUsers(UserFilterForm userFilterForm, Pageable pageable);
+    Page<UserDto> getFilteredUsers(final UserFilterForm userFilterForm, final Pageable pageable);
 
-    User createUser(UserCreateForm createForm);
+    User createUser(final UserCreateForm createForm);
 
-    boolean updateUser(UUID uuid, UserCreateForm createForm);
+    boolean updateUser(final UUID uuid, final UserCreateForm createForm);
 
-    void deleteUser(UUID uuid);
+    void deleteUser(final UUID uuid);
 
-    User getUserByUuid(UUID uuid);
+    User getUserByUuid(final UUID uuid);
 
-    boolean existsUserByLogin(String userLogin);
+    boolean existsUserByLogin(final String userLogin);
 }

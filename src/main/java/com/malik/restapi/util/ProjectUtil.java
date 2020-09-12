@@ -1,7 +1,7 @@
 package com.malik.restapi.util;
 
 import com.malik.restapi.model.Project;
-import com.malik.restapi.timeperiod.TimePeriod;
+import com.malik.restapi.model.Worktime;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -12,7 +12,7 @@ public final class ProjectUtil {
     private ProjectUtil() {
     }
 
-    public static BigDecimal getBudgetPercentage(Project project) {
+    public static BigDecimal getBudgetPercentage(final Project project) {
         return getCostOfProject(project)
                 .multiply(BigDecimal.valueOf(100))
                 .divide(project.getBudget(), 3, RoundingMode.CEILING);
@@ -20,20 +20,23 @@ public final class ProjectUtil {
 
     private static BigDecimal getCostOfProject(Project project) {
         return project.getWorktimes().stream()
-                .map(worktime -> {
-                    BigDecimal userSalaryPerHour = worktime.getUser().getSalaryPerHour();
-                    double workTimeInSeconds = Duration.between(worktime.getStartTime(), worktime.getEndTime()).getSeconds();
-                    return userSalaryPerHour.multiply(BigDecimal.valueOf(workTimeInSeconds / 3600));
-                }).reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(ProjectUtil::getTotalCost)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public static BigDecimal getProjectTotalCost(TimePeriod timePeriod, Project project) {
+    private static BigDecimal getTotalCost(final Worktime worktime) {
+        final BigDecimal userSalaryPerHour = worktime.getUser().getSalaryPerHour();
+        final double workTimeInSeconds = Duration.between(worktime.getStartTime(), worktime.getEndTime()).getSeconds();
+        return userSalaryPerHour.multiply(BigDecimal.valueOf(workTimeInSeconds / 3600));
+    }
+
+    public static BigDecimal getProjectTotalCost(final TimePeriod timePeriod, final Project project) {
         return project.getUsers().stream()
                 .map(user -> UserUtil.getUserCostInProject(project, user, timePeriod))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public static double getProjectTotalWorktime(TimePeriod timePeriod, Project project) {
+    public static double getProjectTotalWorktime(final TimePeriod timePeriod, final Project project) {
         return project.getUsers().stream()
                 .map(user -> UserUtil.getUserTimeInProject(project, user, timePeriod))
                 .mapToDouble(Double::doubleValue).sum();

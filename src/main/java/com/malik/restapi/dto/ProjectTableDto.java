@@ -9,10 +9,10 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProjectTableDto {
 
     private UUID uuid;

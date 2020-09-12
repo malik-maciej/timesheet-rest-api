@@ -7,8 +7,8 @@ import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 
-@NoArgsConstructor
 @Getter
+@NoArgsConstructor
 public class ProjectFilterForm {
 
     @Size(max = 255)

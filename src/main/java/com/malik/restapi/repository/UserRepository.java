@@ -14,10 +14,10 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
     @Query("select u from users u" +
-            " left join fetch u.projects p" +
-            " left join fetch p.worktimes w" +
+            " left join fetch u.projects" +
+            " left join fetch p.worktimes" +
             " where u.uuid=:uuid")
-    Optional<User> findByUuid(@Param("uuid") UUID uuid);
+    Optional<User> findByUuid(@Param("uuid") final UUID uuid);
 
-    boolean existsByLogin(String login);
+    boolean existsByLogin(final String login);
 }

@@ -7,16 +7,16 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface WorktimeMapper {
 
-    WorktimeDto worktimeToWorktimeDto(Worktime worktime);
+    WorktimeDto worktimeToWorktimeDto(final Worktime worktime);
 
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "project", ignore = true)
-    Worktime worktimeCreateFormToWorktime(WorktimeCreateForm worktimeCreateForm);
+    Worktime worktimeCreateFormToWorktime(final WorktimeCreateForm worktimeCreateForm);
 
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "project", ignore = true)
-    void fromWorktimeCreateForm(WorktimeCreateForm worktimeCreateForm, @MappingTarget Worktime worktime);
+    void fromWorktimeCreateForm(final WorktimeCreateForm worktimeCreateForm, @MappingTarget final Worktime worktime);
 }

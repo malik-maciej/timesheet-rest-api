@@ -6,7 +6,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashSet;
@@ -64,12 +70,12 @@ public class User extends AbstractEntity {
         return Collections.unmodifiableSet(worktimes);
     }
 
-    public void addWorktime(Worktime worktime) {
+    public void addWorktime(final Worktime worktime) {
         worktimes.add(worktime);
         worktime.setUser(this);
     }
 
-    public void removeWorktime(Worktime worktime) {
+    public void removeWorktime(final Worktime worktime) {
         worktimes.remove(worktime);
         worktime.setUser(null);
     }

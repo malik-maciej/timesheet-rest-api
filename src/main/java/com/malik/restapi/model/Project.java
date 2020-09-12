@@ -5,7 +5,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -52,22 +58,22 @@ public class Project extends AbstractEntity {
         return Collections.unmodifiableSet(worktimes);
     }
 
-    public void addUser(User user) {
+    public void addUser(final User user) {
         users.add(user);
         user.addProject(this);
     }
 
-    public void removeUser(User user) {
+    public void removeUser(final User user) {
         users.remove(user);
         user.removeProject(this);
     }
 
-    public void addWorktime(Worktime worktime) {
+    public void addWorktime(final Worktime worktime) {
         worktimes.add(worktime);
         worktime.setProject(this);
     }
 
-    public void removeWorktime(Worktime worktime) {
+    public void removeWorktime(final Worktime worktime) {
         worktimes.remove(worktime);
         worktime.setProject(null);
     }

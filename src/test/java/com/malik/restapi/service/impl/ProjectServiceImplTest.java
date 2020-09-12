@@ -2,6 +2,7 @@ package com.malik.restapi.service.impl;
 
 import com.malik.restapi.dto.ProjectTableDto;
 import com.malik.restapi.exception.NotFoundException;
+import com.malik.restapi.factory.ProjectFactory;
 import com.malik.restapi.form.ProjectCreateForm;
 import com.malik.restapi.mapper.ProjectMapper;
 import com.malik.restapi.model.Project;
@@ -9,12 +10,16 @@ import com.malik.restapi.repository.ProjectRepository;
 import com.malik.restapi.repository.ProjectViewRepository;
 import com.malik.restapi.repository.UserRepository;
 import com.malik.restapi.service.UserService;
-import com.malik.restapi.factory.ProjectFactory;
 import org.assertj.core.internal.bytebuddy.utility.RandomString;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +33,8 @@ import static org.mockito.Mockito.verify;
 
 class ProjectServiceImplTest {
 
-    private final ProjectMapper projectMapper = Mappers.getMapper(ProjectMapper.class);
+    @Spy
+    private ProjectMapper projectMapper = Mappers.getMapper(ProjectMapper.class);
 
     @Mock
     private ProjectRepository projectRepository;
@@ -56,8 +62,8 @@ class ProjectServiceImplTest {
     @Test
     void shouldCreateProject() {
         // given
-        ProjectCreateForm projectCreateForm = ProjectFactory.getProjectCreateForm();
-        Project project = projectMapper.projectCreateFormToProject(projectCreateForm);
+        final ProjectCreateForm projectCreateForm = ProjectFactory.getProjectCreateForm();
+        final Project project = projectMapper.projectCreateFormToProject(projectCreateForm);
 
         given(projectRepository.save(project)).willReturn(project);
 
@@ -73,15 +79,15 @@ class ProjectServiceImplTest {
     @Test
     void shouldUpdateProjectWhenNewNameIsTheSame() {
         // given
-        Project project = ProjectFactory.getProject();
+        final Project project = ProjectFactory.getProject();
 
-        ProjectCreateForm projectCreateForm = ProjectFactory.getProjectCreateForm();
+        final ProjectCreateForm projectCreateForm = ProjectFactory.getProjectCreateForm();
         projectCreateForm.setName(project.getName());
 
         given(projectRepository.findByUuid(project.getUuid())).willReturn(Optional.of(project));
 
         // when
-        boolean result = projectService.updateProject(project.getUuid(), projectCreateForm);
+        final boolean result = projectService.updateProject(project.getUuid(), projectCreateForm);
 
         // then
         then(result).isTrue();
@@ -92,14 +98,14 @@ class ProjectServiceImplTest {
     @Test
     void shouldUpdateProjectWhenNewNameIsDifferentAndAvailable() {
         // given
-        Project project = ProjectFactory.getProject();
-        ProjectCreateForm projectCreateForm = ProjectFactory.getProjectCreateForm();
+        final Project project = ProjectFactory.getProject();
+        final ProjectCreateForm projectCreateForm = ProjectFactory.getProjectCreateForm();
 
         given(projectRepository.findByUuid(project.getUuid())).willReturn(Optional.of(project));
         given(projectRepository.existsByName(projectCreateForm.getName())).willReturn(false);
 
         // when
-        boolean result = projectService.updateProject(project.getUuid(), projectCreateForm);
+        final boolean result = projectService.updateProject(project.getUuid(), projectCreateForm);
 
         // then
         then(result).isTrue();
@@ -109,14 +115,14 @@ class ProjectServiceImplTest {
     @Test
     void shouldUpdateProjectWhenNewNameIsDifferentAndUnavailable() {
         // given
-        Project project = ProjectFactory.getProject();
-        ProjectCreateForm projectCreateForm = ProjectFactory.getProjectCreateForm();
+        final Project project = ProjectFactory.getProject();
+        final ProjectCreateForm projectCreateForm = ProjectFactory.getProjectCreateForm();
 
         given(projectRepository.findByUuid(project.getUuid())).willReturn(Optional.of(project));
         given(projectRepository.existsByName(projectCreateForm.getName())).willReturn(true);
 
         // when
-        boolean result = projectService.updateProject(project.getUuid(), projectCreateForm);
+        final boolean result = projectService.updateProject(project.getUuid(), projectCreateForm);
 
         // then
         then(result).isFalse();
@@ -125,7 +131,7 @@ class ProjectServiceImplTest {
     @Test
     void shouldDeleteProject() {
         // given
-        Project project = ProjectFactory.getProject();
+        final Project project = ProjectFactory.getProject();
         given(projectRepository.findByUuid(project.getUuid())).willReturn(Optional.of(project));
 
         // when
@@ -138,11 +144,11 @@ class ProjectServiceImplTest {
     @Test
     void shouldGetProjectByCorrectUuid() {
         // given
-        Project project = ProjectFactory.getProject();
+        final Project project = ProjectFactory.getProject();
         given(projectRepository.findByUuid(project.getUuid())).willReturn(Optional.of(project));
 
         // when
-        Project result = projectService.getProjectByUuid(project.getUuid());
+        final Project result = projectService.getProjectByUuid(project.getUuid());
 
         // then
         then(result).isEqualTo(project);
@@ -151,11 +157,11 @@ class ProjectServiceImplTest {
     @Test
     void shouldThrowExceptionWhenProjectWithGivenUuidIsNotInDb() {
         // given
-        UUID uuid = UUID.randomUUID();
+        final UUID uuid = UUID.randomUUID();
         given(projectRepository.findByUuid(uuid)).willReturn(Optional.empty());
 
         // when
-        Throwable result = catchThrowable(() -> projectService.getProjectByUuid(uuid));
+        final Throwable result = catchThrowable(() -> projectService.getProjectByUuid(uuid));
 
         // then
         then(result)
@@ -169,7 +175,7 @@ class ProjectServiceImplTest {
         given(projectRepository.findByUuid(null)).willReturn(Optional.empty());
 
         // when
-        Throwable result = catchThrowable(() -> projectService.getProjectByUuid(null));
+        final Throwable result = catchThrowable(() -> projectService.getProjectByUuid(null));
 
         // then
         then(result)
@@ -180,11 +186,11 @@ class ProjectServiceImplTest {
     @Test
     void shouldGetProjectByCorrectName() {
         // given
-        Project project = ProjectFactory.getProject();
+        final Project project = ProjectFactory.getProject();
         given(projectRepository.findByName(project.getName())).willReturn(Optional.of(project));
 
         // when
-        Project result = projectService.getProjectByName(project.getName());
+        final Project result = projectService.getProjectByName(project.getName());
 
         // then
         then(result).isEqualTo(project);
@@ -193,11 +199,11 @@ class ProjectServiceImplTest {
     @Test
     void shouldThrowExceptionWhenProjectWithGivenNameIsNotInDb() {
         // given
-        String name = "random1";
+        final String name = "random1";
         given(projectRepository.findByName(name)).willReturn(Optional.empty());
 
         // when
-        Throwable result = catchThrowable(() -> projectService.getProjectByName(name));
+        final Throwable result = catchThrowable(() -> projectService.getProjectByName(name));
 
         // then
         then(result)
@@ -211,7 +217,7 @@ class ProjectServiceImplTest {
         given(projectRepository.findByName(null)).willReturn(Optional.empty());
 
         // when
-        Throwable result = catchThrowable(() -> projectService.getProjectByName(null));
+        final Throwable result = catchThrowable(() -> projectService.getProjectByName(null));
 
         // then
         then(result)
@@ -222,11 +228,11 @@ class ProjectServiceImplTest {
     @Test
     void shouldExistsByNameReturnTrue() {
         // given
-        String name = RandomString.make();
+        final String name = RandomString.make();
         given(projectRepository.existsByName(name)).willReturn(true);
 
         // when
-        boolean result = projectService.existProjectByName(name);
+        final boolean result = projectService.existProjectByName(name);
 
         // then
         then(result).isTrue();
@@ -235,11 +241,11 @@ class ProjectServiceImplTest {
     @Test
     void shouldGetAllProjects() {
         // given
-        List<Project> projects = Collections.singletonList(ProjectFactory.getProject());
+        final List<Project> projects = Collections.singletonList(ProjectFactory.getProject());
         given(projectRepository.findAll()).willReturn(projects);
 
         // when
-        List<ProjectTableDto> result = projectService.getProjects();
+        final List<ProjectTableDto> result = projectService.getProjects();
 
         // then
         verify(projectRepository).findAll();

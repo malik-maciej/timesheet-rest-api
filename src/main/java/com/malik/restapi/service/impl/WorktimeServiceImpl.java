@@ -11,7 +11,6 @@ import com.malik.restapi.repository.WorktimeRepository;
 import com.malik.restapi.service.ProjectService;
 import com.malik.restapi.service.UserService;
 import com.malik.restapi.service.WorktimeService;
-import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,49 +20,50 @@ import java.util.stream.Collectors;
 @Service
 class WorktimeServiceImpl implements WorktimeService {
 
-    private final WorktimeMapper worktimeMapper = Mappers.getMapper(WorktimeMapper.class);
-
     private final WorktimeRepository worktimeRepository;
+    private final WorktimeMapper worktimeMapper;
     private final UserService userService;
     private final ProjectService projectService;
 
-    WorktimeServiceImpl(WorktimeRepository worktimeRepository, UserService userService, ProjectService projectService) {
+    WorktimeServiceImpl(final WorktimeRepository worktimeRepository, final WorktimeMapper worktimeMapper,
+                        final UserService userService, final ProjectService projectService) {
         this.worktimeRepository = worktimeRepository;
+        this.worktimeMapper = worktimeMapper;
         this.userService = userService;
         this.projectService = projectService;
     }
 
     @Override
-    public List<WorktimeDto> getAllWorktimes(UUID uuid) {
-        User user = userService.getUserByUuid(uuid);
+    public List<WorktimeDto> getAllWorktimes(final UUID uuid) {
+        final User user = userService.getUserByUuid(uuid);
         return worktimeRepository.findAllByUser(user).stream()
                 .map(worktimeMapper::worktimeToWorktimeDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Worktime createWorktime(UUID uuid, WorktimeCreateForm createForm) {
-        Project project = projectService.getProjectByName(createForm.getProjectName());
-        Worktime worktime = worktimeMapper.worktimeCreateFormToWorktime(createForm);
-        User user = userService.getUserByUuid(uuid);
+    public Worktime createWorktime(final UUID uuid, final WorktimeCreateForm createForm) {
+        final Project project = projectService.getProjectByName(createForm.getProjectName());
+        final Worktime worktime = worktimeMapper.worktimeCreateFormToWorktime(createForm);
+        final User user = userService.getUserByUuid(uuid);
         user.addWorktime(worktime);
         project.addWorktime(worktime);
         return worktimeRepository.save(worktime);
     }
 
     @Override
-    public void updateWorktime(UUID uuid, WorktimeCreateForm createForm) {
-        Worktime worktime = getWorktimeByUuid(uuid);
+    public void updateWorktime(final UUID uuid, final WorktimeCreateForm createForm) {
+        final Worktime worktime = getWorktimeByUuid(uuid);
         worktimeMapper.fromWorktimeCreateForm(createForm, worktime);
         worktimeRepository.save(worktime);
     }
 
     @Override
-    public void deleteWorktime(UUID uuid) {
+    public void deleteWorktime(final UUID uuid) {
         worktimeRepository.delete(getWorktimeByUuid(uuid));
     }
 
-    private Worktime getWorktimeByUuid(UUID uuid) {
+    private Worktime getWorktimeByUuid(final UUID uuid) {
         return worktimeRepository.findByUuid(uuid)
                 .orElseThrow(() -> new NotFoundException("Worktime with given UUID not found"));
     }

@@ -14,8 +14,11 @@ import java.util.UUID;
 @Repository
 public interface WorktimeRepository extends JpaRepository<Worktime, Long> {
 
-    @Query("select w from worktimes w left join fetch w.user left join fetch w.project where w.user=:user")
-    List<Worktime> findAllByUser(@Param("user") User user);
+    @Query("select w from worktimes w" +
+            " left join fetch w.user" +
+            " left join fetch w.project" +
+            " where w.user=:user")
+    List<Worktime> findAllByUser(@Param("user") final User user);
 
-    Optional<Worktime> findByUuid(UUID uuid);
+    Optional<Worktime> findByUuid(final UUID uuid);
 }

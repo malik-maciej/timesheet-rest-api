@@ -1,8 +1,6 @@
 package com.malik.restapi.util;
 
 import com.malik.restapi.model.Worktime;
-import com.malik.restapi.timeperiod.TimePeriod;
-import com.malik.restapi.timeperiod.WorktimePeriod;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -22,8 +20,7 @@ public final class Util {
     }
 
     static boolean isCorrectPeriod(TimePeriod timePeriod, Worktime worktime) {
-        WorktimePeriod worktimePeriod = TimePeriod.getWorktimePeriod(timePeriod);
-        return worktime.getStartTime().isAfter(worktimePeriod.getFrom())
-                && worktime.getEndTime().isBefore(worktimePeriod.getTo());
+        return worktime.getStartTime().isAfter(timePeriod.getPeriodStart())
+                && worktime.getEndTime().isBefore(timePeriod.getPeriodEnd());
     }
 }

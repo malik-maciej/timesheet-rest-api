@@ -7,8 +7,8 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
-@NoArgsConstructor
 @Getter
+@NoArgsConstructor
 public class UserFilterForm {
 
     @Size(max = 255)

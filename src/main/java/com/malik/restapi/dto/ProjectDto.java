@@ -10,10 +10,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProjectDto {
 
     private UUID uuid;

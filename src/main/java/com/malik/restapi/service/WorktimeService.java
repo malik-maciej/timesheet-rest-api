@@ -11,11 +11,11 @@ import java.util.UUID;
 @Service
 public interface WorktimeService {
 
-    List<WorktimeDto> getAllWorktimes(UUID uuid);
+    List<WorktimeDto> getAllWorktimes(final UUID uuid);
 
-    Worktime createWorktime(UUID uuid, WorktimeCreateForm createForm);
+    Worktime createWorktime(final UUID uuid, final WorktimeCreateForm createForm);
 
-    void updateWorktime(UUID uuid, WorktimeCreateForm createForm);
+    void updateWorktime(final UUID uuid, final WorktimeCreateForm createForm);
 
-    void deleteWorktime(UUID uuid);
+    void deleteWorktime(final UUID uuid);
 }

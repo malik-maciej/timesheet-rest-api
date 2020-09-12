@@ -3,9 +3,10 @@ package com.malik.restapi.service.impl;
 import com.malik.restapi.dto.ProjectReportDto;
 import com.malik.restapi.dto.UserForProjectReportDto;
 import com.malik.restapi.model.Project;
+import com.malik.restapi.model.User;
 import com.malik.restapi.service.ProjectReportService;
 import com.malik.restapi.service.ProjectService;
-import com.malik.restapi.timeperiod.TimePeriod;
+import com.malik.restapi.util.TimePeriod;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,29 +25,31 @@ class ProjectReportServiceImpl implements ProjectReportService {
 
     private final ProjectService projectService;
 
-    ProjectReportServiceImpl(ProjectService projectService) {
+    ProjectReportServiceImpl(final ProjectService projectService) {
         this.projectService = projectService;
     }
 
     @Override
-    public ProjectReportDto getReport(UUID uuid, TimePeriod timePeriod) {
-        Project project = projectService.getProjectByUuid(uuid);
-        BigDecimal projectTotalCost = getRoundedSum(getProjectTotalCost(timePeriod, project));
-        double projectTotalWorktime = getProjectTotalWorktime(timePeriod, project);
-        boolean budgetExceeded = project.getBudget().compareTo(projectTotalCost) < 0;
-        List<UserForProjectReportDto> usersReports = getUsersReports(timePeriod, project);
+    public ProjectReportDto getReport(final UUID uuid, final TimePeriod timePeriod) {
+        final Project project = projectService.getProjectByUuid(uuid);
+        final BigDecimal projectTotalCost = getRoundedSum(getProjectTotalCost(timePeriod, project));
+        final double projectTotalWorktime = getProjectTotalWorktime(timePeriod, project);
+        final boolean budgetExceeded = project.getBudget().compareTo(projectTotalCost) < 0;
+        final List<UserForProjectReportDto> usersReports = getUsersReports(timePeriod, project);
+
         return new ProjectReportDto(project.getUuid(), project.getName(), projectTotalCost,
                 getRoundedSum(projectTotalWorktime), budgetExceeded, usersReports);
     }
 
-    private List<UserForProjectReportDto> getUsersReports(TimePeriod timePeriod, Project project) {
+    private List<UserForProjectReportDto> getUsersReports(final TimePeriod timePeriod, final Project project) {
         return project.getUsers().stream()
-                .map(user -> {
-                    double timeInProject = getUserTimeInProject(project, user, timePeriod);
-                    BigDecimal costInProject = getRoundedSum(getUserCostInProject(user, timeInProject));
-                    return new UserForProjectReportDto(user.getUuid(), user.getLogin(), costInProject,
-                            getRoundedSum(timeInProject));
-                })
+                .map(user -> getUserForProjectReportDto(timePeriod, project, user))
                 .collect(Collectors.toList());
+    }
+
+    private UserForProjectReportDto getUserForProjectReportDto(final TimePeriod timePeriod, final Project project, final User user) {
+        final double timeInProject = getUserTimeInProject(project, user, timePeriod);
+        final BigDecimal costInProject = getRoundedSum(getUserCostInProject(user, timeInProject));
+        return new UserForProjectReportDto(user.getUuid(), user.getLogin(), costInProject, getRoundedSum(timeInProject));
     }
 }

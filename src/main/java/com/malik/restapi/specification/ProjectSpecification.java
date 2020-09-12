@@ -19,13 +19,13 @@ public class ProjectSpecification implements Specification<ProjectView> {
 
     private final ProjectFilterForm filter;
 
-    public ProjectSpecification(ProjectFilterForm filter) {
+    public ProjectSpecification(final ProjectFilterForm filter) {
         this.filter = filter;
     }
 
     @Override
-    public Predicate toPredicate(Root<ProjectView> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-        List<Predicate> predicates = new ArrayList<>();
+    public Predicate toPredicate(final Root<ProjectView> root, final CriteriaQuery<?> query, final CriteriaBuilder builder) {
+        final List<Predicate> predicates = new ArrayList<>();
 
         if (filter.getName() != null) {
             predicates.add(builder.like(root.get(ProjectView_.name), ANY_PATTERN + filter.getName() + ANY_PATTERN));
@@ -51,8 +51,8 @@ public class ProjectSpecification implements Specification<ProjectView> {
                 .distinct(true).orderBy(builder.desc(root.get(ProjectView_.name))).getRestriction();
     }
 
-    private Predicate[] getUsersPredicates(Root<ProjectView> root, CriteriaBuilder builder) {
-        Predicate[] usersPredicates = new Predicate[filter.getUsers().size() + 1];
+    private Predicate[] getUsersPredicates(final Root<ProjectView> root, final CriteriaBuilder builder) {
+        final Predicate[] usersPredicates = new Predicate[filter.getUsers().size() + 1];
         for (int i = 0; i < filter.getUsers().size(); i++) {
             usersPredicates[i] = builder.equal(root.join(ProjectView_.users).get(User_.login), filter.getUsers().get(i));
         }

@@ -10,8 +10,8 @@ import java.math.BigDecimal;
 public class UserFactory {
 
     public static User getUser() {
-        String login = RandomString.make();
-        User user = new User();
+        final String login = RandomString.make();
+        final User user = new User();
         user.setLogin(login);
         user.setName("John");
         user.setSurname("Doe");
@@ -23,8 +23,8 @@ public class UserFactory {
     }
 
     public static UserCreateForm getUserCreateForm() {
-        String login = RandomString.make();
-        UserCreateForm ucf = new UserCreateForm();
+        final String login = RandomString.make();
+        final UserCreateForm ucf = new UserCreateForm();
         ucf.setLogin(login);
         ucf.setName("Mark");
         ucf.setSurname("Smith");

@@ -7,16 +7,16 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    UserDto userToUserDto(User user);
+    UserDto userToUserDto(final User user);
 
     @Mapping(target = "projects", ignore = true)
     @Mapping(target = "worktimes", ignore = true)
-    User userCreateFormToUser(UserCreateForm userCreateForm);
+    User userCreateFormToUser(final UserCreateForm userCreateForm);
 
     @Mapping(target = "projects", ignore = true)
     @Mapping(target = "worktimes", ignore = true)
-    void fromUserCreateForm(UserCreateForm userCreateForm, @MappingTarget User user);
+    void fromUserCreateForm(final UserCreateForm userCreateForm, @MappingTarget final User user);
 }

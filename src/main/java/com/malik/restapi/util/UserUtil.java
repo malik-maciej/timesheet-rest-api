@@ -2,7 +2,6 @@ package com.malik.restapi.util;
 
 import com.malik.restapi.model.Project;
 import com.malik.restapi.model.User;
-import com.malik.restapi.timeperiod.TimePeriod;
 
 import java.math.BigDecimal;
 import java.time.Duration;

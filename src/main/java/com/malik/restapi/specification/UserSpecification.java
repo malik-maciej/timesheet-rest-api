@@ -20,13 +20,13 @@ public class UserSpecification implements Specification<User> {
 
     private final UserFilterForm filter;
 
-    public UserSpecification(UserFilterForm filter) {
+    public UserSpecification(final UserFilterForm filter) {
         this.filter = filter;
     }
 
     @Override
-    public Predicate toPredicate(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-        List<Predicate> predicates = new ArrayList<>();
+    public Predicate toPredicate(final Root<User> root, final CriteriaQuery<?> query, final CriteriaBuilder builder) {
+        final List<Predicate> predicates = new ArrayList<>();
 
         if (filter.getLogin() != null) {
             predicates.add(builder.like(root.get(User_.login), ANY_PATTERN + filter.getLogin() + ANY_PATTERN));

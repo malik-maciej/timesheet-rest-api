@@ -8,18 +8,18 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface ProjectMapper {
 
-    ProjectDto projectToProjectDto(Project project);
+    ProjectDto projectToProjectDto(final Project project);
 
-    ProjectDto projectFilterViewToProjectDto(ProjectView projectView);
-
-    @Mapping(target = "users", ignore = true)
-    @Mapping(target = "worktimes", ignore = true)
-    Project projectCreateFormToProject(ProjectCreateForm projectCreateForm);
+    ProjectDto projectFilterViewToProjectDto(final ProjectView projectView);
 
     @Mapping(target = "users", ignore = true)
     @Mapping(target = "worktimes", ignore = true)
-    void fromProjectCreateForm(ProjectCreateForm projectCreateForm, @MappingTarget Project project);
+    Project projectCreateFormToProject(final ProjectCreateForm projectCreateForm);
+
+    @Mapping(target = "users", ignore = true)
+    @Mapping(target = "worktimes", ignore = true)
+    void fromProjectCreateForm(final ProjectCreateForm projectCreateForm, @MappingTarget final Project project);
 }
