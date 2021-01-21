@@ -1,6 +1,7 @@
 package com.malik.restapi.service.impl;
 
 import com.malik.restapi.dto.UserDto;
+import com.malik.restapi.exception.NonUniqueException;
 import com.malik.restapi.exception.NotFoundException;
 import com.malik.restapi.form.UserCreateForm;
 import com.malik.restapi.form.UserFilterForm;
@@ -17,6 +18,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.BooleanUtils.isFalse;
+
 @Service
 class UserServiceImpl implements UserService {
 
@@ -31,7 +34,7 @@ class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(userMapper::userToUserDto)
+                .map(userMapper::entityToDto)
                 .collect(Collectors.toList());
     }
 
@@ -39,28 +42,30 @@ class UserServiceImpl implements UserService {
     public Page<UserDto> getFilteredUsers(final UserFilterForm userFilterForm, final Pageable pageable) {
         final UserSpecification specification = new UserSpecification(userFilterForm);
         return userRepository.findAll(specification, pageable)
-                .map(userMapper::userToUserDto);
+                .map(userMapper::entityToDto);
     }
 
     @Override
     public User createUser(final UserCreateForm createForm) {
-        return userRepository.save(userMapper.userCreateFormToUser(createForm));
+        if (existsUserByLogin(createForm.getLogin())) {
+            throw new NonUniqueException(ErrorMessages.USER_LOGIN_ALREADY_EXISTS);
+        }
+        return userRepository.save(userMapper.formToEntity(createForm));
     }
 
     @Override
-    public boolean updateUser(final UUID uuid, final UserCreateForm createForm) {
+    public void updateUser(final UUID uuid, final UserCreateForm createForm) {
         final User user = getUserByUuid(uuid);
-        if (!isLoginAvailable(user.getLogin(), createForm.getLogin())) {
-            return false;
+        if (isFalse(isLoginAvailable(user.getLogin(), createForm.getLogin()))) {
+            throw new NonUniqueException(ErrorMessages.USER_LOGIN_ALREADY_EXISTS);
         }
 
         userMapper.fromUserCreateForm(createForm, user);
         userRepository.save(user);
-        return true;
     }
 
     private boolean isLoginAvailable(final String login, final String newLogin) {
-        return login.equals(newLogin) || !existsUserByLogin(newLogin);
+        return login.equals(newLogin) || isFalse(existsUserByLogin(newLogin));
     }
 
     @Override
@@ -71,11 +76,16 @@ class UserServiceImpl implements UserService {
     @Override
     public User getUserByUuid(final UUID uuid) {
         return userRepository.findByUuid(uuid)
-                .orElseThrow(() -> new NotFoundException("User with given UUID not found"));
+                .orElseThrow(() -> new NotFoundException(ErrorMessages.USER_NOT_FOUND));
     }
 
     @Override
     public boolean existsUserByLogin(final String userLogin) {
         return userRepository.existsByLogin(userLogin);
+    }
+
+    static class ErrorMessages {
+        static final String USER_NOT_FOUND = "User with given UUID not found";
+        static final String USER_LOGIN_ALREADY_EXISTS = "User with given login is already exists";
     }
 }

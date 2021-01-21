@@ -12,6 +12,9 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
+
+import static java.util.Objects.nonNull;
 
 public class ProjectSpecification implements Specification<ProjectView> {
 
@@ -27,23 +30,23 @@ public class ProjectSpecification implements Specification<ProjectView> {
     public Predicate toPredicate(final Root<ProjectView> root, final CriteriaQuery<?> query, final CriteriaBuilder builder) {
         final List<Predicate> predicates = new ArrayList<>();
 
-        if (filter.getName() != null) {
+        if (nonNull(filter.getName())) {
             predicates.add(builder.like(root.get(ProjectView_.name), ANY_PATTERN + filter.getName() + ANY_PATTERN));
         }
 
-        if (filter.getStartDate() != null) {
+        if (nonNull(filter.getStartDate())) {
             predicates.add(builder.greaterThanOrEqualTo(root.get(ProjectView_.startDate), filter.getStartDate()));
         }
 
-        if (filter.getEndDate() != null) {
+        if (nonNull(filter.getEndDate())) {
             predicates.add(builder.lessThanOrEqualTo(root.get(ProjectView_.endDate), filter.getEndDate()));
         }
 
-        if (filter.getUsers() != null) {
+        if (nonNull(filter.getUsers())) {
             predicates.add(builder.and(getUsersPredicates(root, builder)));
         }
 
-        if (filter.getBudgetExceeded() != null) {
+        if (nonNull(filter.getBudgetExceeded())) {
             predicates.add(builder.equal(root.get(ProjectView_.budgetExceeded), filter.getBudgetExceeded()));
         }
 
@@ -53,12 +56,11 @@ public class ProjectSpecification implements Specification<ProjectView> {
 
     private Predicate[] getUsersPredicates(final Root<ProjectView> root, final CriteriaBuilder builder) {
         final Predicate[] usersPredicates = new Predicate[filter.getUsers().size() + 1];
-        for (int i = 0; i < filter.getUsers().size(); i++) {
-            usersPredicates[i] = builder.equal(root.join(ProjectView_.users).get(User_.login), filter.getUsers().get(i));
-        }
+        IntStream.range(0, filter.getUsers().size()).forEach(i ->
+                usersPredicates[i] = builder.equal(root.join(ProjectView_.users).get(User_.login), filter.getUsers().get(i)));
 
-        usersPredicates[usersPredicates.length - 1] = builder.like(
-                root.join(ProjectView_.users).get(User_.login), ANY_PATTERN);
+        usersPredicates[usersPredicates.length - 1] =
+                builder.like(root.join(ProjectView_.users).get(User_.login), ANY_PATTERN);
 
         return usersPredicates;
     }

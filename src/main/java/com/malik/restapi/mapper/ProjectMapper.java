@@ -11,13 +11,13 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface ProjectMapper {
 
-    ProjectDto projectToProjectDto(final Project project);
+    ProjectDto entityToDto(final Project project);
 
-    ProjectDto projectFilterViewToProjectDto(final ProjectView projectView);
+    ProjectDto viewToDto(final ProjectView projectView);
 
     @Mapping(target = "users", ignore = true)
     @Mapping(target = "worktimes", ignore = true)
-    Project projectCreateFormToProject(final ProjectCreateForm projectCreateForm);
+    Project formToEntity(final ProjectCreateForm projectCreateForm);
 
     @Mapping(target = "users", ignore = true)
     @Mapping(target = "worktimes", ignore = true)

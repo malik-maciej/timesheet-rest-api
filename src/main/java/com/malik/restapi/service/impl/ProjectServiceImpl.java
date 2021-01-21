@@ -14,6 +14,7 @@ import com.malik.restapi.repository.ProjectViewRepository;
 import com.malik.restapi.service.ProjectService;
 import com.malik.restapi.service.UserService;
 import com.malik.restapi.specification.ProjectSpecification;
+import com.malik.restapi.util.ProjectUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.malik.restapi.util.ProjectUtil.getBudgetPercentage;
+import static org.apache.commons.lang3.BooleanUtils.isFalse;
 
 @Service
 class ProjectServiceImpl implements ProjectService {
@@ -44,24 +45,24 @@ class ProjectServiceImpl implements ProjectService {
     public Page<ProjectDto> getFilteredProjects(final ProjectFilterForm filterForm, final Pageable pageable) {
         final ProjectSpecification specification = new ProjectSpecification(filterForm);
         return projectViewRepository.findAll(specification, pageable)
-                .map(projectMapper::projectFilterViewToProjectDto);
+                .map(projectMapper::viewToDto);
     }
 
     @Override
     public ProjectDto createProject(final ProjectCreateForm createForm) {
         if (projectRepository.existsByName(createForm.getName())) {
-            throw new NonUniqueException("Project with given name is already exists");
+            throw new NonUniqueException(ErrorMessages.PROJECT_NAME_ALREADY_EXISTS);
         }
 
-        Project project = projectRepository.save(projectMapper.projectCreateFormToProject(createForm));
-        return projectMapper.projectToProjectDto(project);
+        final Project project = projectRepository.save(projectMapper.formToEntity(createForm));
+        return projectMapper.entityToDto(project);
     }
 
     @Override
     public void updateProject(final UUID uuid, final ProjectCreateForm createForm) {
         final Project project = getProjectByUuid(uuid);
-        if (!isProjectNameAvailable(project.getName(), createForm.getName())) {
-            throw new NonUniqueException("Given name is non unique");
+        if (isFalse(isProjectNameAvailable(project.getName(), createForm.getName()))) {
+            throw new NonUniqueException(ErrorMessages.PROJECT_NAME_ALREADY_EXISTS);
         }
 
         projectMapper.fromProjectCreateForm(createForm, project);
@@ -69,7 +70,7 @@ class ProjectServiceImpl implements ProjectService {
     }
 
     private boolean isProjectNameAvailable(final String name, final String newName) {
-        return name.equals(newName) || !projectRepository.existsByName(newName);
+        return name.equals(newName) || isFalse(projectRepository.existsByName(newName));
     }
 
     @Override
@@ -98,13 +99,13 @@ class ProjectServiceImpl implements ProjectService {
     @Override
     public Project getProjectByUuid(final UUID uuid) {
         return projectRepository.findByUuid(uuid)
-                .orElseThrow(() -> new NotFoundException("Project with given UUID not found"));
+                .orElseThrow(() -> new NotFoundException(ErrorMessages.PROJECT_UUID_NOT_FOUND));
     }
 
     @Override
     public Project getProjectByName(final String name) {
         return projectRepository.findByName(name)
-                .orElseThrow(() -> new NotFoundException("Project with given name not found"));
+                .orElseThrow(() -> new NotFoundException(ErrorMessages.PROJECT_NAME_NOT_FOUND));
     }
 
     @Override
@@ -118,6 +119,12 @@ class ProjectServiceImpl implements ProjectService {
         final List<String> membersLogins = project.getUsers().stream()
                 .map(User::getLogin)
                 .collect(Collectors.toList());
-        return new ProjectTableDto(project.getUuid(), project.getName(), membersLogins, getBudgetPercentage(project));
+        return ProjectTableDto.of(project.getUuid(), project.getName(), membersLogins, ProjectUtil.getBudgetPercentage(project));
+    }
+
+    static class ErrorMessages {
+        static final String PROJECT_UUID_NOT_FOUND = "Project with given UUID not found";
+        static final String PROJECT_NAME_NOT_FOUND = "Project with given name not found";
+        static final String PROJECT_NAME_ALREADY_EXISTS = "Project with given name is already exists";
     }
 }

@@ -37,14 +37,14 @@ class WorktimeServiceImpl implements WorktimeService {
     public List<WorktimeDto> getAllWorktimes(final UUID uuid) {
         final User user = userService.getUserByUuid(uuid);
         return worktimeRepository.findAllByUser(user).stream()
-                .map(worktimeMapper::worktimeToWorktimeDto)
+                .map(worktimeMapper::entityToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public Worktime createWorktime(final UUID uuid, final WorktimeCreateForm createForm) {
         final Project project = projectService.getProjectByName(createForm.getProjectName());
-        final Worktime worktime = worktimeMapper.worktimeCreateFormToWorktime(createForm);
+        final Worktime worktime = worktimeMapper.formToEntity(createForm);
         final User user = userService.getUserByUuid(uuid);
         user.addWorktime(worktime);
         project.addWorktime(worktime);
@@ -65,6 +65,10 @@ class WorktimeServiceImpl implements WorktimeService {
 
     private Worktime getWorktimeByUuid(final UUID uuid) {
         return worktimeRepository.findByUuid(uuid)
-                .orElseThrow(() -> new NotFoundException("Worktime with given UUID not found"));
+                .orElseThrow(() -> new NotFoundException(ErrorMessages.WORKTIME_NOT_FOUND));
+    }
+
+    private static class ErrorMessages {
+        static final String WORKTIME_NOT_FOUND = "Worktime with given UUID not found";
     }
 }

@@ -3,7 +3,6 @@ package com.malik.restapi.service.impl;
 import com.malik.restapi.dto.ProjectTableDto;
 import com.malik.restapi.exception.NonUniqueException;
 import com.malik.restapi.exception.NotFoundException;
-import com.malik.restapi.factory.ProjectFactory;
 import com.malik.restapi.form.ProjectCreateForm;
 import com.malik.restapi.mapper.ProjectMapper;
 import com.malik.restapi.model.Project;
@@ -26,6 +25,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.malik.restapi.factory.ProjectFactory.getProject;
+import static com.malik.restapi.factory.ProjectFactory.getProjectCreateForm;
+import static com.malik.restapi.service.impl.ProjectServiceImpl.ErrorMessages;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.BDDMockito.given;
@@ -62,8 +64,8 @@ class ProjectServiceImplTest {
     @Test
     void shouldCreateProject() {
         // given
-        final ProjectCreateForm projectCreateForm = ProjectFactory.getProjectCreateForm();
-        final Project project = projectMapper.projectCreateFormToProject(projectCreateForm);
+        final ProjectCreateForm projectCreateForm = getProjectCreateForm();
+        final Project project = projectMapper.formToEntity(projectCreateForm);
 
         given(projectRepository.save(project)).willReturn(project);
 
@@ -79,9 +81,9 @@ class ProjectServiceImplTest {
     @Test
     void shouldUpdateProjectWhenNewNameIsTheSame() {
         // given
-        final Project project = ProjectFactory.getProject();
+        final Project project = getProject();
 
-        final ProjectCreateForm projectCreateForm = ProjectFactory.getProjectCreateForm();
+        final ProjectCreateForm projectCreateForm = getProjectCreateForm();
         projectCreateForm.setName(project.getName());
 
         given(projectRepository.findByUuid(project.getUuid())).willReturn(Optional.of(project));
@@ -97,8 +99,8 @@ class ProjectServiceImplTest {
     @Test
     void shouldUpdateProjectWhenNewNameIsDifferentAndAvailable() {
         // given
-        final Project project = ProjectFactory.getProject();
-        final ProjectCreateForm projectCreateForm = ProjectFactory.getProjectCreateForm();
+        final Project project = getProject();
+        final ProjectCreateForm projectCreateForm = getProjectCreateForm();
 
         given(projectRepository.findByUuid(project.getUuid())).willReturn(Optional.of(project));
         given(projectRepository.existsByName(projectCreateForm.getName())).willReturn(false);
@@ -113,8 +115,8 @@ class ProjectServiceImplTest {
     @Test
     void shouldNotUpdateProjectWhenNewNameIsDifferentAndUnavailable() {
         // given
-        final Project project = ProjectFactory.getProject();
-        final ProjectCreateForm projectCreateForm = ProjectFactory.getProjectCreateForm();
+        final Project project = getProject();
+        final ProjectCreateForm projectCreateForm = getProjectCreateForm();
 
         given(projectRepository.findByUuid(project.getUuid())).willReturn(Optional.of(project));
         given(projectRepository.existsByName(projectCreateForm.getName())).willReturn(true);
@@ -125,13 +127,13 @@ class ProjectServiceImplTest {
         // then
         then(result)
                 .isInstanceOf(NonUniqueException.class)
-                .hasMessage("Given name is non unique");
+                .hasMessage(ErrorMessages.PROJECT_NAME_ALREADY_EXISTS);
     }
 
     @Test
     void shouldDeleteProject() {
         // given
-        final Project project = ProjectFactory.getProject();
+        final Project project = getProject();
         given(projectRepository.findByUuid(project.getUuid())).willReturn(Optional.of(project));
 
         // when
@@ -144,7 +146,7 @@ class ProjectServiceImplTest {
     @Test
     void shouldGetProjectByCorrectUuid() {
         // given
-        final Project project = ProjectFactory.getProject();
+        final Project project = getProject();
         given(projectRepository.findByUuid(project.getUuid())).willReturn(Optional.of(project));
 
         // when
@@ -166,7 +168,7 @@ class ProjectServiceImplTest {
         // then
         then(result)
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage("Project with given UUID not found");
+                .hasMessage(ErrorMessages.PROJECT_UUID_NOT_FOUND);
     }
 
     @Test
@@ -180,13 +182,13 @@ class ProjectServiceImplTest {
         // then
         then(result)
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage("Project with given UUID not found");
+                .hasMessage(ErrorMessages.PROJECT_UUID_NOT_FOUND);
     }
 
     @Test
     void shouldGetProjectByCorrectName() {
         // given
-        final Project project = ProjectFactory.getProject();
+        final Project project = getProject();
         given(projectRepository.findByName(project.getName())).willReturn(Optional.of(project));
 
         // when
@@ -208,7 +210,7 @@ class ProjectServiceImplTest {
         // then
         then(result)
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage("Project with given name not found");
+                .hasMessage(ErrorMessages.PROJECT_NAME_NOT_FOUND);
     }
 
     @Test
@@ -222,13 +224,13 @@ class ProjectServiceImplTest {
         // then
         then(result)
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage("Project with given name not found");
+                .hasMessage(ErrorMessages.PROJECT_NAME_NOT_FOUND);
     }
 
     @Test
     void shouldGetAllProjects() {
         // given
-        final List<Project> projects = Collections.singletonList(ProjectFactory.getProject());
+        final List<Project> projects = Collections.singletonList(getProject());
         given(projectRepository.findAll()).willReturn(projects);
 
         // when

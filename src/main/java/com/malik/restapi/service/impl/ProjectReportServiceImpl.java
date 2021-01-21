@@ -6,19 +6,16 @@ import com.malik.restapi.model.Project;
 import com.malik.restapi.model.User;
 import com.malik.restapi.service.ProjectReportService;
 import com.malik.restapi.service.ProjectService;
+import com.malik.restapi.util.ProjectUtil;
 import com.malik.restapi.util.TimePeriod;
+import com.malik.restapi.util.UserUtil;
+import com.malik.restapi.util.Util;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static com.malik.restapi.util.ProjectUtil.getProjectTotalCost;
-import static com.malik.restapi.util.ProjectUtil.getProjectTotalWorktime;
-import static com.malik.restapi.util.UserUtil.getUserCostInProject;
-import static com.malik.restapi.util.UserUtil.getUserTimeInProject;
-import static com.malik.restapi.util.Util.getRoundedSum;
 
 @Service
 class ProjectReportServiceImpl implements ProjectReportService {
@@ -32,13 +29,13 @@ class ProjectReportServiceImpl implements ProjectReportService {
     @Override
     public ProjectReportDto getReport(final UUID uuid, final TimePeriod timePeriod) {
         final Project project = projectService.getProjectByUuid(uuid);
-        final BigDecimal projectTotalCost = getRoundedSum(getProjectTotalCost(timePeriod, project));
-        final double projectTotalWorktime = getProjectTotalWorktime(timePeriod, project);
+        final BigDecimal projectTotalCost = Util.getRoundedSum(ProjectUtil.getProjectTotalCost(timePeriod, project));
+        final double projectTotalWorktime = ProjectUtil.getProjectTotalWorktime(timePeriod, project);
         final boolean budgetExceeded = project.getBudget().compareTo(projectTotalCost) < 0;
         final List<UserForProjectReportDto> usersReports = getUsersReports(timePeriod, project);
 
-        return new ProjectReportDto(project.getUuid(), project.getName(), projectTotalCost,
-                getRoundedSum(projectTotalWorktime), budgetExceeded, usersReports);
+        return ProjectReportDto.of(project.getUuid(), project.getName(), projectTotalCost,
+                Util.getRoundedSum(projectTotalWorktime), budgetExceeded, usersReports);
     }
 
     private List<UserForProjectReportDto> getUsersReports(final TimePeriod timePeriod, final Project project) {
@@ -48,8 +45,8 @@ class ProjectReportServiceImpl implements ProjectReportService {
     }
 
     private UserForProjectReportDto getUserForProjectReportDto(final TimePeriod timePeriod, final Project project, final User user) {
-        final double timeInProject = getUserTimeInProject(project, user, timePeriod);
-        final BigDecimal costInProject = getRoundedSum(getUserCostInProject(user, timeInProject));
-        return new UserForProjectReportDto(user.getUuid(), user.getLogin(), costInProject, getRoundedSum(timeInProject));
+        final double timeInProject = UserUtil.getUserTimeInProject(project, user, timePeriod);
+        final BigDecimal costInProject = Util.getRoundedSum(UserUtil.getUserCostInProject(user, timeInProject));
+        return UserForProjectReportDto.of(user.getUuid(), user.getLogin(), costInProject, Util.getRoundedSum(timeInProject));
     }
 }

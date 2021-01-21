@@ -14,17 +14,17 @@ import java.util.UUID;
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     @Override
-    @Query("select distinct p from projects p" +
-            " left join fetch p.users" +
-            " left join fetch p.worktimes")
+    @Query("SELECT DISTINCT p FROM projects p " +
+            "LEFT JOIN FETCH p.users " +
+            "LEFT JOIN FETCH p.worktimes")
     List<Project> findAll();
 
     Optional<Project> findByName(final String name);
 
-    @Query("select p from projects p" +
-            " left join fetch p.worktimes" +
-            " left join fetch p.users" +
-            " where p.uuid=:uuid")
+    @Query("SELECT p FROM projects p " +
+            "LEFT JOIN FETCH p.worktimes " +
+            "LEFT JOIN FETCH p.users " +
+            "WHERE p.uuid=:uuid")
     Optional<Project> findByUuid(@Param(("uuid")) final UUID uuid);
 
     boolean existsByName(final String name);

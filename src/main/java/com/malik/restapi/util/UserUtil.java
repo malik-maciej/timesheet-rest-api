@@ -2,30 +2,29 @@ package com.malik.restapi.util;
 
 import com.malik.restapi.model.Project;
 import com.malik.restapi.model.User;
+import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 
-public final class UserUtil {
+@UtilityClass
+public class UserUtil {
 
-    private UserUtil() {
-    }
-
-    public static BigDecimal getUserTotalCost(TimePeriod timePeriod, User user) {
+    public BigDecimal getUserTotalCost(final TimePeriod timePeriod, final User user) {
         return user.getProjects().stream()
                 .map(project -> getUserCostInProject(project, user, timePeriod))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public static BigDecimal getUserCostInProject(Project project, User user, TimePeriod timePeriod) {
+    BigDecimal getUserCostInProject(final Project project, final User user, final TimePeriod timePeriod) {
         return getUserCostInProject(user, getUserTimeInProject(project, user, timePeriod));
     }
 
-    public static BigDecimal getUserCostInProject(User user, double timeInProject) {
+    public BigDecimal getUserCostInProject(final User user, final double timeInProject) {
         return user.getSalaryPerHour().multiply(BigDecimal.valueOf(timeInProject));
     }
 
-    public static double getUserTimeInProject(Project project, User user, TimePeriod timePeriod) {
+    public double getUserTimeInProject(final Project project, final User user, final TimePeriod timePeriod) {
         return project.getWorktimes().stream()
                 .filter(worktime -> worktime.getUser().equals(user))
                 .filter(worktime -> Util.isCorrectPeriod(timePeriod, worktime))

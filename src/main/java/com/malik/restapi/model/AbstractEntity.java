@@ -13,7 +13,7 @@ import java.util.UUID;
 @Getter
 @MappedSuperclass
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public abstract class AbstractEntity {
+abstract class AbstractEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

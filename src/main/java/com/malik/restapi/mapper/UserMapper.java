@@ -10,11 +10,11 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    UserDto userToUserDto(final User user);
+    UserDto entityToDto(final User user);
 
     @Mapping(target = "projects", ignore = true)
     @Mapping(target = "worktimes", ignore = true)
-    User userCreateFormToUser(final UserCreateForm userCreateForm);
+    User formToEntity(final UserCreateForm userCreateForm);
 
     @Mapping(target = "projects", ignore = true)
     @Mapping(target = "worktimes", ignore = true)

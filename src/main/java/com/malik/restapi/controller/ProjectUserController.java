@@ -13,10 +13,6 @@ import java.util.UUID;
 @RestController
 class ProjectUserController {
 
-    interface Routes {
-        String ROOT = "/projects/{projectUuid}/users/{userUuid}";
-    }
-
     private final ProjectService projectService;
 
     ProjectUserController(final ProjectService projectService) {
@@ -33,5 +29,9 @@ class ProjectUserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteUserFromProject(@PathVariable final UUID projectUuid, @PathVariable final UUID userUuid) {
         projectService.deleteUserFromProject(projectUuid, userUuid);
+    }
+
+    private static class Routes {
+        static final String ROOT = "/projects/{projectUuid}/users/{userUuid}";
     }
 }

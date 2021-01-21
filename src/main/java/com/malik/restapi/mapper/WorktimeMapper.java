@@ -10,11 +10,11 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface WorktimeMapper {
 
-    WorktimeDto worktimeToWorktimeDto(final Worktime worktime);
+    WorktimeDto entityToDto(final Worktime worktime);
 
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "project", ignore = true)
-    Worktime worktimeCreateFormToWorktime(final WorktimeCreateForm worktimeCreateForm);
+    Worktime formToEntity(final WorktimeCreateForm worktimeCreateForm);
 
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "project", ignore = true)

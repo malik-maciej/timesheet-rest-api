@@ -2,7 +2,6 @@ package com.malik.restapi.service.impl;
 
 import com.malik.restapi.dto.UserDto;
 import com.malik.restapi.exception.NotFoundException;
-import com.malik.restapi.factory.UserFactory;
 import com.malik.restapi.form.UserCreateForm;
 import com.malik.restapi.form.UserFilterForm;
 import com.malik.restapi.mapper.UserMapper;
@@ -29,6 +28,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.malik.restapi.factory.UserFactory.getUser;
+import static com.malik.restapi.factory.UserFactory.getUserCreateForm;
+import static com.malik.restapi.service.impl.UserServiceImpl.ErrorMessages;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,7 +59,7 @@ class UserServiceImplTest {
     @Test
     void shouldGetAllUsers() {
         // given
-        final List<User> users = Collections.singletonList(UserFactory.getUser());
+        final List<User> users = Collections.singletonList(getUser());
         given(userRepository.findAll()).willReturn(users);
 
         // when
@@ -71,7 +73,7 @@ class UserServiceImplTest {
     @Test
     void shouldGetFilteredUsers() {
         // given
-        final List<User> users = Collections.singletonList(UserFactory.getUser());
+        final List<User> users = Collections.singletonList(getUser());
         final UserFilterForm userFilterForm = new UserFilterForm();
         final Pageable pageable = PageRequest.of(0, 20);
 
@@ -89,8 +91,8 @@ class UserServiceImplTest {
     @Test
     void shouldCreateUser() {
         // given
-        final UserCreateForm userCreateForm = UserFactory.getUserCreateForm();
-        final User user = userMapper.userCreateFormToUser(userCreateForm);
+        final UserCreateForm userCreateForm = getUserCreateForm();
+        final User user = userMapper.formToEntity(userCreateForm);
 
         given(userRepository.save(user)).willReturn(user);
 
@@ -106,18 +108,17 @@ class UserServiceImplTest {
     @Test
     void shouldUpdateUserWhenNewLoginIsTheSame() {
         // given
-        final User user = UserFactory.getUser();
+        final User user = getUser();
 
-        final UserCreateForm userCreateForm = UserFactory.getUserCreateForm();
+        final UserCreateForm userCreateForm = getUserCreateForm();
         userCreateForm.setLogin(user.getLogin());
 
         given(userRepository.findByUuid(user.getUuid())).willReturn(Optional.of(user));
 
         // when
-        final boolean result = userService.updateUser(user.getUuid(), userCreateForm);
+        userService.updateUser(user.getUuid(), userCreateForm);
 
         // then
-        then(result).isTrue();
         then(user.getLogin()).isEqualTo(userCreateForm.getLogin());
         then(user.getSurname()).isEqualTo(userCreateForm.getSurname());
     }
@@ -125,40 +126,23 @@ class UserServiceImplTest {
     @Test
     void shouldUpdateUserWhenNewLoginIsDifferentAndAvailable() {
         // given
-        final User user = UserFactory.getUser();
-        final UserCreateForm userCreateForm = UserFactory.getUserCreateForm();
+        final User user = getUser();
+        final UserCreateForm userCreateForm = getUserCreateForm();
 
         given(userRepository.findByUuid(user.getUuid())).willReturn(Optional.of(user));
         given(userRepository.existsByLogin(userCreateForm.getLogin())).willReturn(false);
 
         // when
-        final boolean result = userService.updateUser(user.getUuid(), userCreateForm);
+        userService.updateUser(user.getUuid(), userCreateForm);
 
         // then
-        then(result).isTrue();
         then(user.getLogin()).isEqualTo(userCreateForm.getLogin());
-    }
-
-    @Test
-    void shouldNotUpdateUserWhenNewLoginIsDifferentAndUnavailable() {
-        // given
-        final User user = UserFactory.getUser();
-        final UserCreateForm userCreateForm = UserFactory.getUserCreateForm();
-
-        given(userRepository.findByUuid(user.getUuid())).willReturn(Optional.of(user));
-        given(userRepository.existsByLogin(userCreateForm.getLogin())).willReturn(true);
-
-        // when
-        final boolean result = userService.updateUser(user.getUuid(), userCreateForm);
-
-        // then
-        then(result).isFalse();
     }
 
     @Test
     void shouldDeleteUser() {
         // given
-        final User user = UserFactory.getUser();
+        final User user = getUser();
         given(userRepository.findByUuid(user.getUuid())).willReturn(Optional.of(user));
 
         // when
@@ -171,7 +155,7 @@ class UserServiceImplTest {
     @Test
     void shouldGetUserByCorrectUuid() {
         // given
-        final User user = UserFactory.getUser();
+        final User user = getUser();
         given(userRepository.findByUuid(user.getUuid())).willReturn(Optional.of(user));
 
         // when
@@ -193,7 +177,7 @@ class UserServiceImplTest {
         // then
         then(result)
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage("User with given UUID not found");
+                .hasMessage(ErrorMessages.USER_NOT_FOUND);
     }
 
     @Test
@@ -207,7 +191,7 @@ class UserServiceImplTest {
         // then
         then(result)
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage("User with given UUID not found");
+                .hasMessage(ErrorMessages.USER_NOT_FOUND);
     }
 
     @Test

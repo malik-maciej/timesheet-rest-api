@@ -8,6 +8,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
+import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
+import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
+import static java.time.temporal.TemporalAdjusters.lastDayOfYear;
+
 @Getter
 @AllArgsConstructor
 public enum TimePeriod {
@@ -17,12 +22,12 @@ public enum TimePeriod {
             LocalDateTime.now()),
 
     CURRENT_YEAR(
-            LocalDate.now().withDayOfYear(1).atStartOfDay(),
-            LocalDateTime.of(LocalDate.now().withDayOfYear(1).plusYears(1).minusDays(1), LocalTime.MAX)),
+            LocalDate.now().with(firstDayOfYear()).atStartOfDay(),
+            LocalDateTime.of(LocalDate.now().with(lastDayOfYear()), LocalTime.MAX)),
 
     CURRENT_MONTH(
-            LocalDate.now().withDayOfMonth(1).atStartOfDay(),
-            LocalDateTime.of(LocalDate.now().withDayOfMonth(1).plusMonths(1).minusDays(1), LocalTime.MAX)),
+            LocalDate.now().with(firstDayOfMonth()).atStartOfDay(),
+            LocalDateTime.of(LocalDate.now().with(lastDayOfMonth()), LocalTime.MAX)),
 
     CURRENT_WEEK(
             LocalDate.now().with(DayOfWeek.MONDAY).atStartOfDay(),

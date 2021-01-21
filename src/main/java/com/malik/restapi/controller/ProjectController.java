@@ -24,12 +24,6 @@ import java.util.UUID;
 @RestController
 class ProjectController {
 
-    interface Routes {
-        String ROOT = "/projects";
-        String PROJECT_BY_UUID = ROOT + "/{uuid}";
-        String FILTER = ROOT + "/filter";
-    }
-
     private final ProjectService projectService;
 
     ProjectController(final ProjectService projectService) {
@@ -53,6 +47,7 @@ class ProjectController {
     }
 
     @PutMapping(Routes.PROJECT_BY_UUID)
+    @ResponseStatus(HttpStatus.OK)
     void updateProject(@PathVariable final UUID uuid, @RequestBody @Valid final ProjectCreateForm createForm) {
         projectService.updateProject(uuid, createForm);
     }
@@ -61,5 +56,11 @@ class ProjectController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteProject(@PathVariable final UUID uuid) {
         projectService.deleteProject(uuid);
+    }
+
+    private static class Routes {
+        static final String ROOT = "/projects";
+        static final String PROJECT_BY_UUID = ROOT + "/{uuid}";
+        static final String FILTER = ROOT + "/filter";
     }
 }

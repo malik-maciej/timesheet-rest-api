@@ -13,6 +13,6 @@ import org.springframework.stereotype.Repository;
 public interface ProjectViewRepository extends JpaRepository<ProjectView, Long>, JpaSpecificationExecutor<ProjectView> {
 
     @Override
-    @EntityGraph(attributePaths = {"users"})
+    @EntityGraph(attributePaths = "users")
     Page<ProjectView> findAll(final Specification<ProjectView> spec, final Pageable pageable);
 }

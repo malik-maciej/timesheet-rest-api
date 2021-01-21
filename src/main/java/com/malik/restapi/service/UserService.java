@@ -20,7 +20,7 @@ public interface UserService {
 
     User createUser(final UserCreateForm createForm);
 
-    boolean updateUser(final UUID uuid, final UserCreateForm createForm);
+    void updateUser(final UUID uuid, final UserCreateForm createForm);
 
     void deleteUser(final UUID uuid);
 

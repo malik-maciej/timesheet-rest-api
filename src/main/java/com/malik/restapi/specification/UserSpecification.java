@@ -11,8 +11,10 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
+
+import static java.util.Objects.nonNull;
 
 public class UserSpecification implements Specification<User> {
 
@@ -28,31 +30,31 @@ public class UserSpecification implements Specification<User> {
     public Predicate toPredicate(final Root<User> root, final CriteriaQuery<?> query, final CriteriaBuilder builder) {
         final List<Predicate> predicates = new ArrayList<>();
 
-        if (filter.getLogin() != null) {
+        if (nonNull(filter.getLogin())) {
             predicates.add(builder.like(root.get(User_.login), ANY_PATTERN + filter.getLogin() + ANY_PATTERN));
         }
 
-        if (filter.getName() != null) {
+        if (nonNull(filter.getName())) {
             predicates.add(builder.like(root.get(User_.name), ANY_PATTERN + filter.getName() + ANY_PATTERN));
         }
 
-        if (filter.getSurname() != null) {
+        if (nonNull(filter.getSurname())) {
             predicates.add(builder.like(root.get(User_.surname), ANY_PATTERN + filter.getSurname() + ANY_PATTERN));
         }
 
-        if (filter.getType() != null) {
-            Arrays.stream(UserType.values()).forEach(userType -> {
+        if (nonNull(filter.getType())) {
+            Stream.of(UserType.values()).forEach(userType -> {
                 if (userType.toString().equals(filter.getType().toUpperCase())) {
                     predicates.add(builder.equal(root.get(User_.type), userType));
                 }
             });
         }
 
-        if (filter.getMinSalary() != null) {
+        if (nonNull(filter.getMinSalary())) {
             predicates.add(builder.greaterThanOrEqualTo(root.get(User_.salaryPerHour), filter.getMinSalary()));
         }
 
-        if (filter.getMaxSalary() != null) {
+        if (nonNull(filter.getMaxSalary())) {
             predicates.add(builder.lessThanOrEqualTo(root.get(User_.salaryPerHour), filter.getMaxSalary()));
         }
 
